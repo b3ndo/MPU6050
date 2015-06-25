@@ -143,18 +143,13 @@ void loop()
 	for(int i=1;i<=4;i++)
 	{
 		Vector norm = compass.readNormalize();
-// Calculate heading
-		heading = atan2(norm.YAxis, -norm.ZAxis);
+		heading = atan2(norm.YAxis, -norm.ZAxis);// Calculate heading
 		heading += declinationAngle;
-// Correct for heading < 0deg and heading > 360deg
-		if (heading < 0) heading += 2 * PI;
+		if (heading < 0) heading += 2 * PI;// Correct for heading < 0deg and heading > 360deg
 		if (heading > 2 * PI) heading -= 2 * PI;
-// Convert to degrees
-		headingDegrees += heading * 180/M_PI;
-// Read temp from MPU
-		tempMPU += mpu.readTemperature();
-// Read temp from BMP
-		bmp.getTemperature(&tempBMP);
+		headingDegrees += heading * 180/M_PI;// Convert to degrees
+		tempMPU += mpu.readTemperature();// Read temp from MPU
+		bmp.getTemperature(&tempBMP);// Read temp from BMP
 		_tempBMP += tempBMP;
 		bmp.getPressure(&pressure);
 		_pressure += pressure;
