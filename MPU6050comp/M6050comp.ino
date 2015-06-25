@@ -1,6 +1,5 @@
 // Do not remove the include below
 #include "M6050comp.h"
-
 // Software SPI (slower updates, more flexible pin options):
 // pin 7 - Serial clock out (SCLK)
 // pin 6 - Serial data out (DIN)
