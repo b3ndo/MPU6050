@@ -143,8 +143,8 @@ void loop()
 	for(int i=1;i<=4;i++)
 	{
 		Vector norm = compass.readNormalize();
-// Calculate heading
-		heading = atan2(norm.YAxis, -norm.ZAxis);
+
+		heading = atan2(norm.YAxis, -norm.ZAxis);// Calculate heading
 		heading += declinationAngle;
 // Correct for heading < 0deg and heading > 360deg
 		if (heading < 0) heading += 2 * PI;
