@@ -132,6 +132,7 @@ void loop()
 {
 //Add your repeated code here
 	float currentMillis = millis();
+	if(!digitalRead(buttonPin)) seaLevelPressure=_pressure/i/100;
 	if(currentMillis - prevMillisMeasur > 240)
 	{
 		i++;
@@ -148,8 +149,6 @@ void loop()
 		_tempBMP += tempBMP;
 		bmp.getPressure(&pressure);
 		_pressure += pressure;
-		bool buttonValue = digitalRead(buttonPin);
-		if(!buttonValue) seaLevelPressure=_pressure/i/100;
 // Then convert the atmospheric pressure, and SLP to altitude
 // Update this next line with the current SLP for better results
 // Read altitude from BMP
