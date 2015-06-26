@@ -31,6 +31,20 @@ void checkbatt()//kontrola bateriek
 	else if(battA < 3.3 || battB < 3.3) hlasic.Beep();
 	//else hlasic.Off();
 }
+void LCDbatt()
+{
+	LCD.setTextSize(1);
+	LCD.setTextColor(BLACK);
+	LCD.setCursor(0,0);
+	LCD.print(battA);
+	LCD.println(" V");
+	LCD.print(battB);
+	LCD.println(" V");
+	LCD.display();
+	LCD.clearDisplay();
+}
+
+
 void zobraz()
 {
 	LCD.setTextSize(1);
@@ -122,7 +136,12 @@ void loop()
 {
 //Add your repeated code here
 	float currentMillis = millis();
-	if(!digitalRead(buttonPin)) seaLevelPressure=_pressure/ik/100;
+	if(!digitalRead(buttonPin))
+	{
+		seaLevelPressure=_pressure/ik/100;
+		//TODO dorobit sealevel....pri stlaceni tlac
+		LCDbatt();
+	}
 	if(currentMillis - prevMillisMeasur > 240)
 	{
 		ik++;

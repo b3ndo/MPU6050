@@ -31,11 +31,13 @@ void setup();
 float _pressure = 0;
 float _tempBMP = 0;
 int buttonPin = 8;
-int battAin = A0; int battBin = A1;
+int battAPin = A0; int battBPin = A1;
+int LM35Pin = A2;
 int interval = 5; int iz = 0; int ik = 0;
 float battA; float battB;
 float prevMillisMeasur = 0;
 float prevMillisData = 0;
+float LM35 = 0;
 float tempBMP;
 float tempMPU;
 float pressure;
@@ -53,7 +55,7 @@ float seaLevelPressure = 1013.25;	//Standardny tlak na hladine mora
 float declinationAngle = (4.0 + (34.0 / 60.0)) / (180 / M_PI);
 const char* ponuka[] = {"Tepl.BMP:", "Tepl.MPU:", "Tlak:",
 					"More:", "Nadm.v.:", "Azimut :"};
-float data[6];
+float data[7] = {0,0,0,0,0,0,0};
 //add your function definitions for the project M6050comp here
 void zobraz(); 	//Zobrazi na LCD
 void zapis();	//Zapis cez serial
