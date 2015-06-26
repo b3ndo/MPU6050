@@ -35,37 +35,27 @@ void zobraz()
 {
 	LCD.setTextSize(1);
 	LCD.setTextColor(BLACK);
-	LCD.setCursor(0,0);
-	LCD.print("Tepl.BMP:");
-	LCD.print(tempBMP);
-	LCD.print("Tepl.MPU:");
-	LCD.print(tempMPU);
-	LCD.print("Tlak:");
-	LCD.print(pressure/100, 2);
-	LCD.print("hPa");
-	LCD.print("More:");
-	LCD.print(calculseaLevelPressure,1);
-	LCD.print("hPa");
-	LCD.print("Nadm.v.:");
-	LCD.println(altitude, 1);
-	LCD.print("Azimut :");
-	LCD.print(headingDegrees, 0);
+	for(int i = 0; i<=5; i++)
+	{
+		LCD.setCursor(0,8*i);
+		LCD.print(ponuka[i]);
+		if(i==0 || i==1 || i==3 || i==4) LCD.print(data[i],1);
+		if(i==2) LCD.print(data[i],2);
+		if(i==5) LCD.print(data[i],0);
+		if(i==2 || i==3) LCD.print("hPa");
+	}
 	LCD.display();
 	LCD.clearDisplay();
 }
 void zapis()
 {
-	Serial.print(tempBMP, 1);
-	Serial.print("\t");
-	Serial.print(tempMPU, 1);
-	Serial.print("\t");
-	Serial.print(pressure/100, 2);
-	Serial.print("\t");
-	Serial.print(calculseaLevelPressure, 1);
-	Serial.print("\t");
-	Serial.print(altitude, 1);
-	Serial.print("\t");
-	Serial.println(headingDegrees, 0);
+	for(int i = 0; i<=5; i++)
+	{
+		if(i==0 || i==1 || i==3 || i==4) Serial.print(data[i],1);
+		if(i==2) Serial.print(data[i],2);
+		if(i==5) Serial.print(data[i],0);
+		Serial.print("\t");
+	}
 	Serial.print(battA, 2);
 	Serial.print("V \t");
 	Serial.print(battB, 2);
@@ -132,10 +122,10 @@ void loop()
 {
 //Add your repeated code here
 	float currentMillis = millis();
-	if(!digitalRead(buttonPin)) seaLevelPressure=_pressure/i/100;
+	if(!digitalRead(buttonPin)) seaLevelPressure=_pressure/ik/100;
 	if(currentMillis - prevMillisMeasur > 240)
 	{
-		i++;
+		ik++;
 		sensors_event_t event;
 		bmp.getEvent(&event);
 		Vector norm = compass.readNormalize();
@@ -159,9 +149,9 @@ void loop()
 	if(currentMillis - prevMillisData > 980)
 	{
 		iz++;
-		headingDegrees /= 4; tempMPU /= 4;
-		tempBMP = _tempBMP/4; altitude /= 4;
-		calculseaLevelPressure /= 4; pressure = _pressure/4;
+		data[0] = _tempBMP/4; data[1] = tempMPU / 4;
+		data[2] = _pressure/400; data[3] = calculseaLevelPressure / 4;
+		data[4] = altitude / 4; data[5] = (int)headingDegrees / 4;
 		zobraz();
 		if(Serial){
 			if (interval==iz)
@@ -174,7 +164,7 @@ void loop()
 		tempBMP =  0; _tempBMP = 0; tempMPU = 0;
 		pressure = 0; _pressure = 0; altitude = 0;
 		headingDegrees = 0;	calculseaLevelPressure = 0;		//Prepoc. tlak na urovni mora
-		i = 0;
+		ik = 0;
 		checkbatt();
 		prevMillisData = currentMillis;
 	}
