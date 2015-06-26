@@ -14,33 +14,25 @@
 // pin 6 - Data/Command select (D/C)
 // pin 5 - LCD chip select (CS)
 // pin 4 - LCD reset (RST)
+Buzzer hlasic(13, 2400, 500, 500);
+//Buzzer hlasic1(13, 2400, 200, 200);
+
 Adafruit_PCD8544 LCD = Adafruit_PCD8544(6, 5, 4);
 HMC5883L compass;
 MPU6050 mpu;
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
-int buttonPin = 8;
-int battAin = A0; int battBin = A1;
-int interval = 5; int iz = 0;
-float battA; float battB;
-float tempBMP;
-float tempMPU;
-float pressure;
-float altitude;
-float heading;
-float headingDegrees;
-float calculseaLevelPressure;
-float seaLevelPressure = 1013.25;	//Standardny tlak na hladine mora
-//		float seaLevelPressure = 1013.25; 	//Nadmorska vyska
-
-// Set declination angle on your location and fix heading
-// You can find your declination on: http://magnetic-declination.com/
-// (+) Positive or (-) for negative
-// For Bytom / Poland declination angle is 4'26E (positive)
-// Formula: (deg + (min / 60.0)) / (180 / M_PI);
-float declinationAngle = (4.0 + (34.0 / 60.0)) / (180 / M_PI);
 
 // Note with hardware SPI MISO and SS pins aren't used but will still be read
 // and written to during SPI transfer.  Be careful sharing these pins!
+void checkbatt()//kontrola bateriek
+{
+	battA = analogRead(battAin)*0.004538;
+	delayMicroseconds(100);
+	battB = analogRead(battBin)*0.004538;
+	if(battA < 3.1 || battB < 3.1) hlasic.Beep(200, 200);
+	else if(battA < 3.3 || battB < 3.3) hlasic.Beep();
+	//else hlasic.Off();
+}
 void zobraz()
 {
 	LCD.setTextSize(1);
@@ -162,7 +154,6 @@ void loop()
 		bmp.getPressure(&pressure);
 		_pressure += pressure;
 		bool buttonValue = digitalRead(buttonPin);
-//		Serial.println(buttonValue); 	//stlaceny = 0
 		if(!buttonValue) seaLevelPressure=_pressure/i/100;
 // Then convert the atmospheric pressure, and SLP to altitude
 // Update this next line with the current SLP for better results
@@ -175,13 +166,11 @@ void loop()
 	tempBMP = _tempBMP/4; altitude /= 4;
 	calculseaLevelPressure /= 4; pressure = _pressure/4;
 	zobraz();
+	checkbatt();
 	if(Serial){
 		if (interval==iz)
 		{
-				battA = analogRead(battAin)*0.004538;
-				delay(100);
-				battB = analogRead(battBin)*0.004538;
-				zapis();
+			zapis();
 			iz = 0;
 		}
 	}
