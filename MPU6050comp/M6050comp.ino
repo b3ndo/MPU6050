@@ -15,8 +15,6 @@
 // pin 5 - LCD chip select (CS)
 // pin 4 - LCD reset (RST)
 Buzzer hlasic(13, 2400, 500, 500);
-//Buzzer hlasic1(13, 2400, 200, 200);
-
 Adafruit_PCD8544 LCD = Adafruit_PCD8544(6, 5, 4);
 HMC5883L compass;
 MPU6050 mpu;
@@ -133,15 +131,12 @@ void setup()
 void loop()
 {
 //Add your repeated code here
-	iz++;
-	tempBMP =  0; tempMPU = 0; pressure = 0;
-	altitude = 0; headingDegrees = 0; float _tempBMP = 0;
-	float _pressure = 0;
-	calculseaLevelPressure = 0;		//Prepoc. tlak na urovni mora
-	sensors_event_t event;
-	bmp.getEvent(&event);
-	for(int i=1;i<=4;i++)
+	float currentMillis = millis();
+	if(currentMillis - prevMillisMeasur > 240)
 	{
+		i++;
+		sensors_event_t event;
+		bmp.getEvent(&event);
 		Vector norm = compass.readNormalize();
 		heading = atan2(norm.YAxis, -norm.ZAxis);// Calculate heading
 		heading += declinationAngle;
@@ -160,21 +155,30 @@ void loop()
 // Read altitude from BMP
 		calculseaLevelPressure += bmp.seaLevelForAltitude(326, event.pressure);
 		altitude += bmp.pressureToAltitude(seaLevelPressure, event.pressure);
-		delay(220);
+		prevMillisMeasur = currentMillis;
 	}
-	headingDegrees /= 4; tempMPU /= 4;
-	tempBMP = _tempBMP/4; altitude /= 4;
-	calculseaLevelPressure /= 4; pressure = _pressure/4;
-	zobraz();
-	checkbatt();
-	if(Serial){
-		if (interval==iz)
-		{
-			zapis();
-			iz = 0;
+	if(currentMillis - prevMillisData > 980)
+	{
+		iz++;
+		headingDegrees /= 4; tempMPU /= 4;
+		tempBMP = _tempBMP/4; altitude /= 4;
+		calculseaLevelPressure /= 4; pressure = _pressure/4;
+		zobraz();
+		if(Serial){
+			if (interval==iz)
+			{
+				zapis();
+				iz = 0;
+			}
 		}
+		else iz=0;
+		tempBMP =  0; _tempBMP = 0; tempMPU = 0;
+		pressure = 0; _pressure = 0; altitude = 0;
+		headingDegrees = 0;	calculseaLevelPressure = 0;		//Prepoc. tlak na urovni mora
+		i = 0;
+		checkbatt();
+		prevMillisData = currentMillis;
 	}
-	else iz=0;
 }
 
 

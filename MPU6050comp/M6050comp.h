@@ -28,10 +28,14 @@ void setup();
 } // extern "C"
 #endif
 
+float _pressure = 0;
+float _tempBMP = 0;
 int buttonPin = 8;
 int battAin = A0; int battBin = A1;
-int interval = 5; int iz = 0;
+int interval = 5; int iz = 0; int i = 0;
 float battA; float battB;
+float prevMillisMeasur = 0;
+float prevMillisData = 0;
 float tempBMP;
 float tempMPU;
 float pressure;
