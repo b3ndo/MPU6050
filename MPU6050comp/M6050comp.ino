@@ -19,7 +19,9 @@ HMC5883L compass;
 MPU6050 mpu;
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 int buttonPin = 8;
+int battAin = A0; int battBin = A1;
 int interval = 5; int iz = 0;
+float battA; float battB;
 float tempBMP;
 float tempMPU;
 float pressure;
@@ -74,12 +76,18 @@ void zapis()
 	Serial.print(altitude, 1);
 	Serial.print("\t");
 	Serial.println(headingDegrees, 0);
+	Serial.print(battA, 2);
+	Serial.print("V \t");
+	Serial.print(battB, 2);
+	Serial.println("V \t");
 }
 //The setup function is called once at startup of the sketch
 void setup()
 {
 // Add your initialization code here
 	pinMode(buttonPin,INPUT_PULLUP);
+	pinMode(battAin,INPUT);
+	pinMode(battBin,INPUT);
 	LCD.begin(58);
 	delay(500);
 	LCD.clearDisplay();
@@ -161,7 +169,7 @@ void loop()
 // Read altitude from BMP
 		calculseaLevelPressure += bmp.seaLevelForAltitude(326, event.pressure);
 		altitude += bmp.pressureToAltitude(seaLevelPressure, event.pressure);
-		delay(240);
+		delay(220);
 	}
 	headingDegrees /= 4; tempMPU /= 4;
 	tempBMP = _tempBMP/4; altitude /= 4;
@@ -170,7 +178,10 @@ void loop()
 	if(Serial){
 		if (interval==iz)
 		{
-			zapis();
+				battA = analogRead(battAin)*0.004538;
+				delay(100);
+				battB = analogRead(battBin)*0.004538;
+				zapis();
 			iz = 0;
 		}
 	}
