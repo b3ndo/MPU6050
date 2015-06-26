@@ -32,7 +32,7 @@ float _pressure = 0;
 float _tempBMP = 0;
 int buttonPin = 8;
 int battAin = A0; int battBin = A1;
-int interval = 5; int iz = 0; int i = 0;
+int interval = 5; int iz = 0; int ik = 0;
 float battA; float battB;
 float prevMillisMeasur = 0;
 float prevMillisData = 0;
@@ -45,14 +45,15 @@ float headingDegrees;
 float calculseaLevelPressure;
 float seaLevelPressure = 1013.25;	//Standardny tlak na hladine mora
 //		float seaLevelPressure = 1013.25; 	//Nadmorska vyska
-
 // Set declination angle on your location and fix heading
 // You can find your declination on: http://magnetic-declination.com/
 // (+) Positive or (-) for negative
 // For Bytom / Poland declination angle is 4'26E (positive)
 // Formula: (deg + (min / 60.0)) / (180 / M_PI);
 float declinationAngle = (4.0 + (34.0 / 60.0)) / (180 / M_PI);
-
+const char* ponuka[] = {"Tepl.BMP:", "Tepl.MPU:", "Tlak:",
+					"More:", "Nadm.v.:", "Azimut :"};
+float data[6];
 //add your function definitions for the project M6050comp here
 void zobraz(); 	//Zobrazi na LCD
 void zapis();	//Zapis cez serial
