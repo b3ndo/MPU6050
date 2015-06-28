@@ -33,20 +33,27 @@ void checkbatt()//kontrola bateriek
 //	else hlasic.Off();
 	analogReference(INTERNAL);//set internal aRef
 }
-void LCDbatt()
+void zobraz1()
 {
 	LCD.setTextSize(1);
 	LCD.setTextColor(BLACK);
 	LCD.setCursor(0,0);
+	LCD.println("Stav bat.:");
 	LCD.print(battA);
 	LCD.println(" V");
 	LCD.print(battB);
 	LCD.println(" V");
+	LCD.print("Ext.tepl.:");
+	LCD.println(data[6],1);
+	analogRead(LM35Pin);
+	delay(20);
+	LCD.print(analogRead(LM35Pin));
 	LCD.display();
 	LCD.clearDisplay();
+	LCDobr = 0;//!LCDobr;
 }
 void zobraz()
-{
+	{
 	LCD.setTextSize(1);
 	LCD.setTextColor(BLACK);
 	for(int i = 0; i<=5; i++)
@@ -60,6 +67,7 @@ void zobraz()
 	}
 	LCD.display();
 	LCD.clearDisplay();
+	LCDobr = 1;//!LCDobr;
 }
 void zapis()
 {
@@ -141,7 +149,7 @@ void loop()
 	if(!digitalRead(buttonPin))
 	{
 		if(ik > 0) seaLevelPressure=_pressure/ik/100;
-		LCDbatt();
+		zobraz1();
 	}
 	if(currentMillis - prevMillisMeasur > 240)
 	{
@@ -165,8 +173,8 @@ void loop()
 		calculseaLevelPressure += bmp.seaLevelForAltitude(326, event.pressure);
 		altitude += bmp.pressureToAltitude(seaLevelPressure, event.pressure);
 		analogRead(LM35Pin);
-		delay(5);
-		LM35 += analogRead(LM35Pin)*0.242;
+		delay(20);
+		LM35 += analogRead(LM35Pin)*0.25;//0.242;
 		prevMillisMeasur = currentMillis;
 	}
 	if(currentMillis - prevMillisData > 980 && ik == 4)
@@ -176,15 +184,15 @@ void loop()
 		data[2] = _pressure/400; data[3] = calculseaLevelPressure / 4;
 		data[4] = altitude / 4; data[5] = (int)headingDegrees / 4;
 		data[6] = LM35 /4;
-		zobraz();
-		if(Serial){
-			if (interval==iz)
-			{
-				zapis();
-				iz = 0;
-			}
+		if(LCDobr==1 && iz>4){
+			zobraz1();
 		}
-		else iz=0;
+		else zobraz();
+		if (interval<=iz)
+		{
+			if(Serial) zapis();
+			iz = 0;
+		}
 		tempBMP =  0; _tempBMP = 0; tempMPU = 0;
 		pressure = 0; _pressure = 0; altitude = 0;
 		headingDegrees = 0;	calculseaLevelPressure = 0;		//Prepoc. tlak na urovni mora
