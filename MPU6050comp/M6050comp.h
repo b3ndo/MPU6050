@@ -28,6 +28,7 @@ void setup();
 } // extern "C"
 #endif
 
+bool LCDobr = 0;
 float _pressure = 0;
 float _tempBMP = 0;
 int buttonPin = 8;
@@ -57,7 +58,9 @@ const char* ponuka[] = {"Tepl.BMP:", "Tepl.MPU:", "Tlak:",
 					"More:", "Nadm.v.:", "Azimut :"};
 float data[7] = {0,0,0,0,0,0,0};
 //add your function definitions for the project M6050comp here
+void checkbatt(); 	//Zobrazi na LCD
 void zobraz(); 	//Zobrazi na LCD
+void zobraz1(); 	//Zobrazi na LCD
 void zapis();	//Zapis cez serial
 
 //Do not add code below this line
