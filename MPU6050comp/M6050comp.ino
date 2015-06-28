@@ -25,11 +25,7 @@ Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 void checkbatt()//kontrola bateriek
 {
 	analogReference(DEFAULT);//set internal aRef
-//	battA = analogRead(battAin);
-//	delay(10);
 	battA = analogRead(battAPin)*0.004538;
-//	delayMicroseconds(100);
-//	battB = analogRead(battBin);
 	delay(5);
 	battB = analogRead(battBPin)*0.004538;
 	if(battA < 3.1 || battB < 3.1) hlasic.Beep(200, 200);
@@ -145,7 +141,6 @@ void loop()
 	if(!digitalRead(buttonPin))
 	{
 		if(ik > 0) seaLevelPressure=_pressure/ik/100;
-		//TODO dorobit sealevel....pri stlaceni tlac
 		LCDbatt();
 	}
 	if(currentMillis - prevMillisMeasur > 240)
