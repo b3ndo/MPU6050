@@ -14,22 +14,28 @@
 // pin 6 - Data/Command select (D/C)
 // pin 5 - LCD chip select (CS)
 // pin 4 - LCD reset (RST)
-Buzzer hlasic(13, 2400, 500, 500);
+// Note with hardware SPI MISO and SS pins aren't used but will still be read
+// and written to during SPI transfer.  Be careful sharing these pins!
 Adafruit_PCD8544 LCD = Adafruit_PCD8544(6, 5, 4);
+Buzzer hlasic(13, 2400, 500, 500);
 HMC5883L compass;
 MPU6050 mpu;
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 
-// Note with hardware SPI MISO and SS pins aren't used but will still be read
-// and written to during SPI transfer.  Be careful sharing these pins!
 void checkbatt()//kontrola bateriek
 {
-	battA = analogRead(battAin)*0.004538;
-	delayMicroseconds(100);
-	battB = analogRead(battBin)*0.004538;
+	analogReference(DEFAULT);//set internal aRef
+//	battA = analogRead(battAin);
+//	delay(10);
+	battA = analogRead(battAPin)*0.004538;
+//	delayMicroseconds(100);
+//	battB = analogRead(battBin);
+	delay(5);
+	battB = analogRead(battBPin)*0.004538;
 	if(battA < 3.1 || battB < 3.1) hlasic.Beep(200, 200);
 	else if(battA < 3.3 || battB < 3.3) hlasic.Beep();
-	//else hlasic.Off();
+//	else hlasic.Off();
+	analogReference(INTERNAL);//set internal aRef
 }
 void LCDbatt()
 {
@@ -43,8 +49,6 @@ void LCDbatt()
 	LCD.display();
 	LCD.clearDisplay();
 }
-
-
 void zobraz()
 {
 	LCD.setTextSize(1);
@@ -63,9 +67,9 @@ void zobraz()
 }
 void zapis()
 {
-	for(int i = 0; i<=5; i++)
+	for(int i = 0; i<=6; i++)
 	{
-		if(i==0 || i==1 || i==3 || i==4) Serial.print(data[i],1);
+		if(i==0 || i==1 || i==3 || i==4 || i==6) Serial.print(data[i],1);
 		if(i==2) Serial.print(data[i],2);
 		if(i==5) Serial.print(data[i],0);
 		Serial.print("\t");
@@ -79,9 +83,11 @@ void zapis()
 void setup()
 {
 // Add your initialization code here
+	analogReference(INTERNAL);
+//	analogReference(DEFAULT);
 	pinMode(buttonPin,INPUT_PULLUP);
-	pinMode(battAin,INPUT);
-	pinMode(battBin,INPUT);
+	pinMode(battAPin,INPUT);
+	pinMode(battBPin,INPUT);
 	LCD.begin(58);
 	delay(500);
 	LCD.clearDisplay();
@@ -138,7 +144,7 @@ void loop()
 	float currentMillis = millis();
 	if(!digitalRead(buttonPin))
 	{
-		seaLevelPressure=_pressure/ik/100;
+		if(ik > 0) seaLevelPressure=_pressure/ik/100;
 		//TODO dorobit sealevel....pri stlaceni tlac
 		LCDbatt();
 	}
@@ -163,14 +169,18 @@ void loop()
 // Read altitude from BMP
 		calculseaLevelPressure += bmp.seaLevelForAltitude(326, event.pressure);
 		altitude += bmp.pressureToAltitude(seaLevelPressure, event.pressure);
+		analogRead(LM35Pin);
+		delay(5);
+		LM35 += analogRead(LM35Pin)*0.242;
 		prevMillisMeasur = currentMillis;
 	}
-	if(currentMillis - prevMillisData > 980)
+	if(currentMillis - prevMillisData > 980 && ik == 4)
 	{
 		iz++;
 		data[0] = _tempBMP/4; data[1] = tempMPU / 4;
 		data[2] = _pressure/400; data[3] = calculseaLevelPressure / 4;
 		data[4] = altitude / 4; data[5] = (int)headingDegrees / 4;
+		data[6] = LM35 /4;
 		zobraz();
 		if(Serial){
 			if (interval==iz)
@@ -183,7 +193,7 @@ void loop()
 		tempBMP =  0; _tempBMP = 0; tempMPU = 0;
 		pressure = 0; _pressure = 0; altitude = 0;
 		headingDegrees = 0;	calculseaLevelPressure = 0;		//Prepoc. tlak na urovni mora
-		ik = 0;
+		ik = 0; LM35 = 0;
 		checkbatt();
 		prevMillisData = currentMillis;
 	}
